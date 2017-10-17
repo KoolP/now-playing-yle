@@ -7,6 +7,7 @@ import CryptoJS from 'crypto-js';
 import fetchp from 'fetch-jsonp';
 import Player from './views/Player';
 import Toolbar from './views/Toolbar';
+import DummyView from './views/DummyView';
 
 /**
  * Fetch the current TV shows using JSONP and fetch JSONP polyfill.
@@ -227,6 +228,10 @@ async function handleRouteChange() {
       player.program = program;
       player.render();
       return;
+    // #/dummy
+    case 'dummy':
+      dummy.render();
+      return;
     default:
       console.log(`No route handler found for ${hashPart}`);
       return init();
@@ -252,6 +257,7 @@ let programs = [];
 const toolbar = new Toolbar(header);
 const guide = new ChannelGuide(main);
 const player = new Player(main);
+const dummy = new DummyView(main);
 
 // Update for UI state changes
 window.addEventListener('hashchange', handleRouteChange);
