@@ -52,7 +52,7 @@ export default class Toolbar {
     // Render the elements
     bind(this.headerTitle)`${ this.program.channel }`;
 
-    console.log("test 1")
+    console.log('test 1');
     bind(this.tabBar)`${
       this.channels.map((c) => wire(c)`
         <a class="${ this.tabStyle(c) }" href="${ `#channels/${c.id}` }">${ c.title }</a>

@@ -7,6 +7,7 @@ import CryptoJS from 'crypto-js';
 import fetchp from 'fetch-jsonp';
 import Player from './views/Player';
 import Toolbar from './views/Toolbar';
+import PersonalGuide from './views/PersonalGuide';
 
 /**
  * Fetch the current TV shows using JSONP and fetch JSONP polyfill.
@@ -31,6 +32,32 @@ async function fetchCurrentPrograms(services = []) {
   const json = await response.json();
   return json.data;
 }
+
+/**
+ * Fetch the current TV shows using JSONP and fetch JSONP polyfill.
+ *
+ * @param {Array<String>} [services=[]] - a string array of YLE service IDs o use as filter
+ * @return {Array<Object>} YLE program metadata in unparsed form
+ */
+async function fetchPersonalPrograms(services = []) {
+  const url = new URL(`${baseUrl}/programs/items.json`);
+  const params = url.searchParams;
+  params.set('app_id', config.appId);
+  params.set('app_key', config.appKey);
+  params.set('service', services.join(','));
+  params.set('q', 'Eränkävijät');
+ // params.set('start', '-1');
+ // params.set('end', '10');
+
+  // Fix the jsonp callback function name for service worker compatibility
+  const options = {jsonpCallbackFunction: 'jsonp_options'};
+
+  const response = await fetchp(url.href, options);
+  // TODO Validate response
+  const json = await response.json();
+  return json.data;
+}
+
 
 /**
  * Fetch the YLE services using JSONP and fetch JSONP polyfill.
@@ -228,8 +255,16 @@ async function handleRouteChange() {
       player.render();
       return;
     case 'personal':
+    console.log('Personal enter case');
+      const personalGuide = await fetchPersonalPrograms();
+      console.log('Personal 2');
+      // toolbar.program = currentProgram;
+      // toolbar.channels = channels;
+      // toolbar.render();
+      personal.programs = personalGuide;
+      personal.render();
+    return;
 
-      return;
     default:
       console.log(`No route handler found for ${hashPart}`);
       return init();
@@ -255,6 +290,7 @@ let programs = [];
 const toolbar = new Toolbar(header);
 const guide = new ChannelGuide(main);
 const player = new Player(main);
+const personal = new PersonalGuide(main);
 
 // Update for UI state changes
 window.addEventListener('hashchange', handleRouteChange);
