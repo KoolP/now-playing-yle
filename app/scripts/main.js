@@ -227,6 +227,9 @@ async function handleRouteChange() {
       player.program = program;
       player.render();
       return;
+    case 'personal':
+
+      return;
     default:
       console.log(`No route handler found for ${hashPart}`);
       return init();

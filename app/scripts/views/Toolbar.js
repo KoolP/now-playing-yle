@@ -51,12 +51,16 @@ export default class Toolbar {
 
     // Render the elements
     bind(this.headerTitle)`${ this.program.channel }`;
+
+    console.log("test 1")
     bind(this.tabBar)`${
       this.channels.map((c) => wire(c)`
         <a class="${ this.tabStyle(c) }" href="${ `#channels/${c.id}` }">${ c.title }</a>
       `)
-    }`;
-    bind(this.headerBackground)`<div style="${backgroundStyle}"></div>`;
+    }
+      <a class="mdc-tab" href="#personal">Omat</a>
+    `;
+    bind(this.headerBackgroud)`<div style="${backgroundStyle}"></div>`;
 
     return this.element;
   }
