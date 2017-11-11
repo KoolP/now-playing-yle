@@ -111,7 +111,7 @@ gulp.task('styles', () => {
 gulp.task('scripts', () => {
   const webpackSettings = {
     cache: true,
-    devtool: 'source-map',
+//    devtool: 'source-map',
     entry: {
       // Use entry name as the output file name to gulp pick up the file name
       main: ['babel-polyfill', './app/scripts/main.js'],
