@@ -38,8 +38,6 @@ export default class Toolbar {
    * @return {HTMLElement} The rendered element
    */
   render() {
-    console.log('Render toolbar');
-
     const transform = `w_${this.element.clientWidth},h_${this.element.clientHeight},c_fit`;
     const url = `http://images.cdn.yle.fi/image/upload/${transform}/${this.program.imageId}.png`;
     const backgroundStyle = `
@@ -52,7 +50,6 @@ export default class Toolbar {
     // Render the elements
     bind(this.headerTitle)`${ this.program.channel }`;
 
-    console.log('test 1');
     bind(this.tabBar)`${
       this.channels.map((c) => wire(c)`
         <a class="${ this.tabStyle(c) }" href="${ `#channels/${c.id}` }">${ c.title }</a>
@@ -60,7 +57,8 @@ export default class Toolbar {
     }
       <a class="mdc-tab" href="#personal">Omat</a>
     `;
-    bind(this.headerBackgroud)`<div style="${backgroundStyle}"></div>`;
+
+    bind(this.headerBackground)`<div style="${backgroundStyle}"></div>`;
 
     return this.element;
   }
