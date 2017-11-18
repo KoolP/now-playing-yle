@@ -59,8 +59,8 @@ async function fetchPersonalPrograms(services = []) {
   const json = await response.json();
   return json.data.map(createProgram)
     .filter((p) => p !== null)
-    .sort((p1,p2) => {
-      return new Date (p1.startTime) < new Date (p2.startTime);
+    .sort((p1, p2) => {
+      return new Date(p1.startTime) < new Date(p2.startTime);
     });
 }
 
@@ -137,10 +137,16 @@ async function fetch() {
   programs = newPrograms.map((p) => p.content).map(createProgram).filter((p) => p !== null);
 }
 
+/**
+ * 
+ * create
+ * @param program
+ * @return program
+ */
 function createProgram(program) {
   const publicationEvents = program.publicationEvent
-    .sort((p1,p2) => {
-      return new Date (p1.startTime) < new Date (p2.startTime);
+    .sort((p1, p2) => {
+      return new Date(p1.startTime) < new Date(p2.startTime);
     })
     .filter((e) => {
       return channels.find((c) => c.id === e.service.id) != null;
@@ -205,6 +211,7 @@ function decrypt(url, secret) {
 /**
  * 
  * Rekisteröidään push worker 
+ * @param serviceWorker
  * 
  */
 async function registerPush(serviceWorker) {
@@ -226,7 +233,7 @@ async function registerPush(serviceWorker) {
 
 /**
  * 
- * Tarjoillaan Push Viesti
+ * Tarjoillaan Push subscriptio
  */
 async function userSubscribed(subscription) {
   console.log("here be push subscription", JSON.stringify(subscription));
@@ -289,6 +296,7 @@ async function init() {
     try {
       console.log("Registering service worker");
       const swRegistration = await navigator.serviceWorker.register('service-worker.js');
+      console.log("Done");
       guide.registerWorker(swRegistration);
       await registerPush(swRegistration);
       console.log("Registered SW Push");
@@ -391,5 +399,5 @@ const personal = new PersonalGuide(main);
 window.addEventListener('hashchange', handleRouteChange);
 
 // Bootstrap the app
-init();
+document.addEventListener('DOMContentLoaded', init);
 
