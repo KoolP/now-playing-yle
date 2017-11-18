@@ -46,6 +46,7 @@ async function fetchPersonalPrograms(services = []) {
   params.set('app_key', config.appKey);
   params.set('service', services.join(','));
   params.set('q', 'Eränkävijät');
+  params.set('order', 'publication.starttime:desc');
  // params.set('start', '-1');
  // params.set('end', '10');
 
@@ -55,7 +56,11 @@ async function fetchPersonalPrograms(services = []) {
   const response = await fetchp(url.href, options);
   // TODO Validate response
   const json = await response.json();
-  return json.data.map(createProgram).filter((p) => p !== null);
+  return json.data.map(createProgram)
+    .filter((p) => p !== null)
+    .sort((p1,p2) => {
+      return new Date (p1.startTime) < new Date (p2.startTime);
+    });
 }
 
 
@@ -133,6 +138,9 @@ async function fetch() {
 
 function createProgram(program) {
   const publicationEvents = program.publicationEvent
+    .sort((p1,p2) => {
+      return new Date (p1.startTime) < new Date (p2.startTime);
+    })
     .filter((e) => {
       return channels.find((c) => c.id === e.service.id) != null;
     });
@@ -194,6 +202,28 @@ function decrypt(url, secret) {
 }
 
 /**
+ * 
+ * Rekisteröidään push worker 
+ * 
+ */
+async function registerPush(serviceWorker) {
+  const subscription = await serviceWorker.pushManager.getSubscription()
+  const isSubscribed = !(subscription === null)
+
+  if (isSubscribed) {
+    // send keys to server always as they will expire after a while
+    await userSubscribed(subscription)
+  } else {
+    // user is not subscribed, display permission dialog
+    const newSubscription = await askForNotificationPermission(serviceWorker)
+    // if user gave permissions, send keys to server
+    if (newSubscription !== null) {
+      userSubscribed(newSubscription)
+    }
+  }
+}
+
+/**
  * Initialises this application asynchronously.
  */
 async function init() {
@@ -209,9 +239,20 @@ async function init() {
 
   if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || isLocalhost)) {
     // Wait for Service Worker to register, then assign the handle
-    const swRegistration = await navigator.serviceWorker.register('service-worker.js');
-    guide.registerWorker(swRegistration);
+    try {
+      console.log("Registering service worker");
+      const swRegistration = await navigator.serviceWorker.register('service-worker.js');
+      guide.registerWorker(swRegistration);
+      await registerPush(swRegistration);
+      console.log("Registered SW Push");
+    } catch (error) {
+      console.error('Service Worker Error', error);
+    }
   }
+
+// install the listener
+// document.addEventListener('DOMContentLoaded', installServiceWorker)
+
 
   // Fetch the data
   await fetch();
@@ -303,3 +344,4 @@ window.addEventListener('hashchange', handleRouteChange);
 
 // Bootstrap the app
 init();
+
