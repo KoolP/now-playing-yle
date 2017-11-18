@@ -225,6 +225,15 @@ async function registerPush(serviceWorker) {
 }
 
 /**
+ * 
+ * Tarjoillaan Push Viesti
+ */
+async function userSubscribed(subscription) {
+  console.log("here be push subscription", JSON.stringify(subscription));
+}
+
+
+/**
    * A helper to transform Base64 encoded string into a Uint8Array.
    *
    * Source: https://github.com/GoogleChromeLabs/web-push-codelab/blob/master/app/scripts/main.js
@@ -301,6 +310,7 @@ async function init() {
   // Manually trigger route change.
   handleRouteChange();
 }
+
 
 /**
  * Handles the URL (hash part) route change and update the application accordingly.
