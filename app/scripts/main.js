@@ -3,6 +3,7 @@
 import {MDCToolbar} from '@material/toolbar';
 import ChannelGuide from './views/ChannelGuide';
 import config from '../../config.json';
+import serverConfig from '../../config.server.json';
 import CryptoJS from 'crypto-js';
 import fetchp from 'fetch-jsonp';
 import Player from './views/Player';
@@ -208,19 +209,56 @@ function decrypt(url, secret) {
  */
 async function registerPush(serviceWorker) {
   const subscription = await serviceWorker.pushManager.getSubscription()
-  const isSubscribed = !(subscription === null)
+  const isSubscribed = !(subscription === null);
 
   if (isSubscribed) {
     // send keys to server always as they will expire after a while
-    await userSubscribed(subscription)
+    await userSubscribed(subscription);
   } else {
     // user is not subscribed, display permission dialog
-    const newSubscription = await askForNotificationPermission(serviceWorker)
+    const newSubscription = await askForNotificationPermission(serviceWorker);
     // if user gave permissions, send keys to server
     if (newSubscription !== null) {
-      userSubscribed(newSubscription)
+      userSubscribed(newSubscription);
     }
   }
+}
+
+/**
+   * A helper to transform Base64 encoded string into a Uint8Array.
+   *
+   * Source: https://github.com/GoogleChromeLabs/web-push-codelab/blob/master/app/scripts/main.js
+   *
+   * @param {String} base64String - The Base64 encoded string
+   * @return {Uint8Array} The converted array in unsigned 8-bit integer
+   */
+  function urlB64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+
+/**
+ * 
+ * Kysytään lupa Push viesteihin
+ */
+async function askForNotificationPermission(serviceWorker) {
+  console.log(serverConfig);
+  const applicationServerKey = urlB64ToUint8Array(serverConfig.vapidDetails.publicKey);
+  return await serviceWorker.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: applicationServerKey
+  })
 }
 
 /**
