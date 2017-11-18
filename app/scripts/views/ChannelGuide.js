@@ -42,10 +42,12 @@ export default class ChannelGuide {
    */
   createAction(program) {
     // If the element has playback available, create a CTA for it
+    /*
     if (program.playbackUrl) {
       return wire()`<a href="${program.playbackUrl}"
         class="mdc-button mdc-button--raised mdc-button--accent mdc-card__action">Katso</a>`;
     }
+    */
 
     // If PUSH notifications are supported, create an action for registering for PUSH
     if (this.supportsPUSH) {
