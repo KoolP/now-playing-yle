@@ -55,7 +55,7 @@ async function fetchPersonalPrograms(services = []) {
   const response = await fetchp(url.href, options);
   // TODO Validate response
   const json = await response.json();
-  return json.data;
+  return json.data.map(createProgram).filter((p) => p !== null);
 }
 
 
@@ -128,39 +128,45 @@ async function fetch() {
     // Only use channels that have a current program available
     .filter((c) => newPrograms.find((p) => c.id === p.service.id));
 
-  programs = newPrograms.map((program) => {
-    const linkedChannel = channels.find((c) => c.id === program.service.id);
-    const imageId = (program.content.image && program.content.image.id) ?
-      program.content.image.id :
-      program.content.partOfSeries && program.content.partOfSeries.coverImage ?
-        program.content.partOfSeries.coverImage.id : '';
-    const mediaId = program.content.publicationEvent
-      .map((e) => {
-        if (e.temporalStatus !== 'currently' || e.type !== 'OnDemandPublication') {
-          return null;
-        }
+  programs = newPrograms.map((p) => p.content).map(createProgram).filter((p) => p !== null);
+}
 
-        if (!e.media || !e.media.available) {
-          return null;
-        }
+function createProgram(program) {
+  const publicationEvents = program.publicationEvent
+    .filter((e) => {
+      return channels.find((c) => c.id === e.service.id) != null;
+    });
+  console.log('events', publicationEvents, program.publicationEvent);
 
-        return e.media.id;
-      })
-      .find((id) => id !== null);
+  if (publicationEvents.length == 0) return null;
 
-    return {
-      id: program.id,
-      contentId: program.content.id,
-      channelId: linkedChannel.id,
-      imageId: imageId,
-      title: program.content.title.fi || program.content.title.sv,
-      channel: linkedChannel.title,
-      description: program.content.description.fi || program.content.description.sv,
-      startTime: new Date(program.startTime),
-      endTime: new Date(program.endTime),
-      playbackUrl: mediaId ? `#play/${program.content.id}/${mediaId}` : null,
-    };
-  });
+  const publicationEvent = publicationEvents[0];
+
+//  const publicationEvent = program.publicationEvent && program.publicationEvent[0];
+  const service = publicationEvent.service;
+  const linkedChannel = channels.find((c) => c.id === service.id);
+
+  if (linkedChannel == null) return null;
+
+  const imageId = (program.image && program.image.id) ?
+    program.image.id :
+    program.partOfSeries && program.partOfSeries.coverImage ?
+      program.partOfSeries.coverImage.id : '';
+
+  const mediaId = publicationEvent.id;
+
+  return {
+    id: publicationEvent.id,
+    contentId: program.id,
+    channelId: linkedChannel.id,
+    imageId: imageId,
+    title: program.title.fi || program.title.sv,
+    channel: linkedChannel.title,
+    description: program.description.fi || program.description.sv,
+    startTime: new Date(publicationEvent.startTime),
+    endTime: new Date(publicationEvent.endTime),
+    playbackUrl: mediaId ? `#play/${program.id}/${mediaId}` : null,
+  };
 }
 
 /**

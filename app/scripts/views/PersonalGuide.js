@@ -127,7 +127,7 @@ export default class ChannelGuide {
    * @return {HTMLElement} The rendered element
    */
   render() {
-    console.log(`Render channel guide, ${this.programs.length} elements`);
+    console.log(`Render personal programs, ${this.programs.length} elements`, this.programs);
 
     return bind(this.element)`
       ${ this.programs.map((p) => wire()`
