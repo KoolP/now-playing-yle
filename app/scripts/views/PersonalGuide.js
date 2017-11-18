@@ -134,7 +134,7 @@ export default class ChannelGuide {
         <div class="mdc-card">
           <section class="mdc-card__primary">
             <h2 class="mdc-card__subtitle">
-              ${ p.startTime.getHours() }:${ String(p.startTime.getMinutes()).padStart(2, '0') }
+              ${p.startTime.getDate()}/${p.startTime.getMonth()+1}/${p.startTime.getFullYear()} ${ p.startTime.getHours() }:${ String(p.startTime.getMinutes()).padStart(2, '0') }
             </h2>
             <h1 class="mdc-card__title mdc-card__title--large">${ p.title }</h1>
           </section>
@@ -145,6 +145,7 @@ export default class ChannelGuide {
         </div>
       `)}
     `;
+
 
     // Attach the scroller - this is done after templating to permit the right behaviour
     // const tabBarScroller =
