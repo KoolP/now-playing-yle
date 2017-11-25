@@ -3,7 +3,6 @@
 import {MDCToolbar} from '@material/toolbar';
 import ChannelGuide from './views/ChannelGuide';
 import config from '../../config.json';
-import serverConfig from '../../config.server.json';
 import CryptoJS from 'crypto-js';
 import fetchp from 'fetch-jsonp';
 import Player from './views/Player';
@@ -269,8 +268,7 @@ async function userSubscribed(subscription) {
  * Kysytään lupa Push viesteihin
  */
 async function askForNotificationPermission(serviceWorker) {
-  console.log(serverConfig);
-  const applicationServerKey = urlB64ToUint8Array(serverConfig.vapidDetails.publicKey);
+  const applicationServerKey = urlB64ToUint8Array(config.notifications.publicKey);
   return await serviceWorker.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: applicationServerKey
